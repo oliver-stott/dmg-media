@@ -18,11 +18,15 @@
   "attributes": {
     "title": {
       "type": "string",
-      "default": "Placeholder Title"
+      "default": "Featured POsts"
     },
     "description": {
       "type": "string",
-      "default": "This is a placeholder description."
+      "default": "This is a placeholder description for featured post content."
+    },
+    "searchInput": {
+      "type": "string",
+      "default": ""
     }
   },
   "textdomain": "post-search",

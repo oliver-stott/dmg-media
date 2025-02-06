@@ -1,3 +1,4 @@
+import debounce from "lodash.debounce";
 import { __ } from "@wordpress/i18n";
 import "./editor.scss";
 import { InspectorControls, useBlockProps } from "@wordpress/block-editor";
@@ -14,35 +15,57 @@ import { addQueryArgs } from "@wordpress/url";
 export default function Edit({ attributes, setAttributes }) {
 	const { title, description, searchInput, selectedPosts = [] } = attributes;
 	const [posts, setPosts] = useState([]);
+	const [currentPage, setCurrentPage] = useState(1);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
-	const [currentPage, setCurrentPage] = useState(1);
 
 	// Function to fetch posts
-	const fetchPosts = (searchQuery, currentPage) => {
+	const fetchPosts = async (searchQuery, currentPage) => {
 		setLoading(true);
-		setError(null); // Reset errors
+		setError(null);
 
-		apiFetch({
-			path: addQueryArgs("/wp/v2/posts", {
-				search: searchQuery || "",
-				per_page: 30,
-				page: currentPage,
-			}),
-		})
-			.then((data) => {
-				const formattedPosts = data.map((post) => ({
-					id: post.id,
-					title: post.title.rendered,
-					link: post.link,
-				}));
-				setPosts(formattedPosts);
-			})
-			.catch((error) => {
-				setError("Error fetching posts.");
-				console.log("Error Fetching Posts", error);
-			})
-			.finally(() => setLoading(false));
+		const defaultQueryArgs = {
+			per_page: 20,
+			page: currentPage,
+			orderby: "date",
+			order: "desc",
+		};
+
+		const queryArgs = getQueryArgs(searchQuery, defaultQueryArgs);
+
+		try {
+			const data = await apiFetch({
+				path: addQueryArgs("/wp/v2/posts", queryArgs),
+			});
+			const formattedPosts = formatPosts(data);
+			setPosts(formattedPosts);
+		} catch (error) {
+			setError("Error fetching posts.");
+			console.log("Error Fetching Posts", error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// This will create a delay which will prevent the API fetching
+	// on each stage change or keystroke
+	const debouncedFetchPosts = debounce(fetchPosts, 1000);
+
+	const getQueryArgs = (searchQuery, defaultQueryArgs) => {
+		if (searchQuery.id) {
+			return { ...defaultQueryArgs, include: searchQuery.id };
+		} else if (searchQuery.title) {
+			return { ...defaultQueryArgs, search: searchQuery.title };
+		}
+		return defaultQueryArgs;
+	};
+
+	const formatPosts = (data) => {
+		return data.map((post) => ({
+			id: post.id,
+			title: post.title.rendered,
+			link: post.link,
+		}));
 	};
 
 	// Handle post selection
@@ -69,8 +92,11 @@ export default function Edit({ attributes, setAttributes }) {
 	};
 
 	useEffect(() => {
-		if (searchInput) {
-			fetchPosts(searchInput, currentPage);
+		if (searchInput === "" || searchInput) {
+			const searchQuery = isNaN(parseInt(searchInput))
+				? { title: searchInput }
+				: { id: parseInt(searchInput) };
+			debouncedFetchPosts(searchQuery, currentPage);
 		}
 	}, [searchInput, currentPage]);
 

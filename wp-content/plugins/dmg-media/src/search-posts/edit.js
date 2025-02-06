@@ -1,29 +1,33 @@
 import { __ } from "@wordpress/i18n";
 import "./editor.scss";
 import { InspectorControls, useBlockProps } from "@wordpress/block-editor";
-import { useState, useEffect } from "@wordpress/element";
 import {
 	PanelBody,
 	TextControl,
 	TextareaControl,
 	Button,
 } from "@wordpress/components";
+import { useEffect, useState } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import { addQueryArgs } from "@wordpress/url";
 
 export default function Edit({ attributes, setAttributes }) {
-	const { title, description, searchInput } = attributes;
+	const { title, description, searchInput, selectedPosts = [] } = attributes;
 	const [posts, setPosts] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
+	const [currentPage, setCurrentPage] = useState(1);
+
 	// Function to fetch posts
-	const fetchPosts = (searchQuery) => {
+	const fetchPosts = (searchQuery, currentPage) => {
 		setLoading(true);
 		setError(null); // Reset errors
+
 		apiFetch({
 			path: addQueryArgs("/wp/v2/posts", {
-				search: searchQuery || "", // Only search if searchQuery is provided
-				per_page: 10, // Default to 10 posts
+				search: searchQuery || "",
+				per_page: 30,
+				page: currentPage,
 			}),
 		})
 			.then((data) => {
@@ -34,18 +38,41 @@ export default function Edit({ attributes, setAttributes }) {
 				}));
 				setPosts(formattedPosts);
 			})
-			.catch((error) => console.error("Error fetching posts:", error))
-			.finally(() => {
-				setLoading(false);
-			});
+			.catch((error) => {
+				setError("Error fetching posts.");
+				console.log("Error Fetching Posts", error);
+			})
+			.finally(() => setLoading(false));
 	};
 
-	console.log(posts);
+	// Handle post selection
+	const handlePostSelect = (post) => {
+		if (selectedPosts.some(({ id }) => id === post.id)) return;
+		setAttributes({ selectedPosts: [...selectedPosts, post] });
+	};
 
-	// Fetch posts on initial load or when search input changes
+	// Handle post removal
+	const handlePostRemove = (postId) => {
+		setAttributes({
+			selectedPosts: selectedPosts.filter(({ id }) => id !== postId),
+		});
+	};
+
+	const handleNextPage = () => {
+		setCurrentPage(currentPage + 1);
+	};
+
+	const handlePreviousPage = () => {
+		if (currentPage > 1) {
+			setCurrentPage(currentPage - 1);
+		}
+	};
+
 	useEffect(() => {
-		fetchPosts(searchInput);
-	}, [searchInput]);
+		if (searchInput) {
+			fetchPosts(searchInput, currentPage);
+		}
+	}, [searchInput, currentPage]);
 
 	return (
 		<div>
@@ -67,16 +94,32 @@ export default function Edit({ attributes, setAttributes }) {
 						onChange={(value) => setAttributes({ searchInput: value })}
 					/>
 
-					{posts.length > 0 ? (
-						<ul>
-							{posts.map((post) => (
-								<li key={post.id}>
-									<Button isLink onClick={() => handlePostSelect(post)}>
-										{post.title}
-									</Button>
-								</li>
-							))}
-						</ul>
+					{loading ? (
+						<p>{__("Loading...", "search-posts")}</p>
+					) : error ? (
+						<p>{error}</p>
+					) : posts.length > 0 ? (
+						<div>
+							<ul>
+								{posts.map((post) => (
+									<li key={post.id}>
+										<Button isLink onClick={() => handlePostSelect(post)}>
+											{post.title}
+										</Button>
+									</li>
+								))}
+							</ul>
+
+							<div className="pagination-controls">
+								<Button
+									disabled={currentPage === 1}
+									onClick={handlePreviousPage}
+								>
+									Previous
+								</Button>
+								<Button onClick={handleNextPage}>Next</Button>
+							</div>
+						</div>
 					) : (
 						<p>{__("No posts found.", "search-posts")}</p>
 					)}
@@ -85,23 +128,28 @@ export default function Edit({ attributes, setAttributes }) {
 
 			<div {...useBlockProps()}>
 				<h1 className="search__title">{title}</h1>
-				<p className="search__title">{description}</p>
+				<p className="search__description">{description}</p>
 
 				<div className="search__posts-wrapper">
-					{posts.length > 0 ? (
-						<ul className="search__posts">
-							<li className="search__post">
-								{posts.map((post) => (
-									<p key={post.id} className="dmg-read-more">
-										<a href={post.link} rel="noopener noreferrer">
-											Read More: {post.title}
-										</a>
-									</p>
-								))}
-							</li>
+					<h3>{__("Selected Posts:", "search-posts")}</h3>
+					{selectedPosts.length > 0 ? (
+						<ul>
+							{selectedPosts.map((post) => (
+								<li key={post.id}>
+									<a href={post.link} target="_blank" rel="noopener noreferrer">
+										{post.title}
+									</a>
+									<Button
+										isDestructive
+										onClick={() => handlePostRemove(post.id)}
+									>
+										{__("Remove", "search-posts")}
+									</Button>
+								</li>
+							))}
 						</ul>
 					) : (
-						<p>Sorry,No posts found</p>
+						<p>{__("No posts selected.", "search-posts")}</p>
 					)}
 				</div>
 			</div>

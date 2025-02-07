@@ -70,6 +70,7 @@ function Edit({
       });
       const formattedPosts = formatPosts(data);
       setPosts(formattedPosts);
+      console.log(formattedPosts);
     } catch (error) {
       setError("Error fetching posts.");
       console.log("Error Fetching Posts", error);
@@ -80,7 +81,7 @@ function Edit({
 
   // This will create a delay which will prevent the API fetching
   // on each stage change or keystroke
-  const debouncedFetchPosts = lodash_debounce__WEBPACK_IMPORTED_MODULE_0___default()(fetchPosts, 1000);
+  const debouncedFetchPosts = lodash_debounce__WEBPACK_IMPORTED_MODULE_0___default()(fetchPosts, 500);
   const getQueryArgs = (searchQuery, defaultQueryArgs) => {
     if (searchQuery.id) {
       return {
@@ -190,7 +191,9 @@ function Edit({
         })]
       })
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)("div", {
-      ...(0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.useBlockProps)(),
+      ...(0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.useBlockProps)({
+        className: "search"
+      }),
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("h1", {
         className: "search__title",
         children: title
@@ -200,14 +203,16 @@ function Edit({
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)("div", {
         className: "search__posts-wrapper",
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("h3", {
+          className: "search__posts-title",
           children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Selected Posts:", "search-posts")
         }), selectedPosts.length > 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("ul", {
           children: selectedPosts.map(post => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)("li", {
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("a", {
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)("a", {
+              className: "dmg-read-more",
               href: post.link,
               target: "_blank",
               rel: "noopener noreferrer",
-              children: post.title
+              children: ["Read More: ", post.title]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
               isDestructive: true,
               onClick: () => handlePostRemove(post.id),
@@ -755,7 +760,7 @@ module.exports = window["wp"]["url"];
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"create-block/search-posts","version":"0.1.0","title":"Search Posts","category":"widgets","icon":"search","description":"Example block scaffolded with Create Block tool.","example":{},"supports":{"html":false,"anchor":true,"align":true,"customClassName":true,"color":{"background":true,"gradients":false}},"attributes":{"title":{"type":"string","default":"Featured Posts"},"description":{"type":"string","default":"This is a placeholder description for featured post content."},"searchInput":{"type":"string","default":""},"selectedPosts":{"type":"array","default":[]}},"textdomain":"post-search","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScript":"file:./view.js"}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"create-block/search-posts","version":"0.1.0","title":"Search Posts","category":"widgets","icon":"search","description":"Example block scaffolded with Create Block tool.","example":{},"supports":{"html":false,"anchor":true,"align":true,"customClassName":true,"color":{"background":true,"gradients":false},"class":"search"},"attributes":{"title":{"type":"string","default":"Featured Posts"},"description":{"type":"string","default":"This is a placeholder description for featured post content."},"searchInput":{"type":"string","default":""},"selectedPosts":{"type":"array","default":[]}},"textdomain":"post-search","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScript":"file:./view.js"}');
 
 /***/ })
 

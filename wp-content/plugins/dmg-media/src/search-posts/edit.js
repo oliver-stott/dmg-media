@@ -39,6 +39,8 @@ export default function Edit({ attributes, setAttributes }) {
 			});
 			const formattedPosts = formatPosts(data);
 			setPosts(formattedPosts);
+
+			console.log(formattedPosts);
 		} catch (error) {
 			setError("Error fetching posts.");
 			console.log("Error Fetching Posts", error);
@@ -49,7 +51,7 @@ export default function Edit({ attributes, setAttributes }) {
 
 	// This will create a delay which will prevent the API fetching
 	// on each stage change or keystroke
-	const debouncedFetchPosts = debounce(fetchPosts, 1000);
+	const debouncedFetchPosts = debounce(fetchPosts, 500);
 
 	const getQueryArgs = (searchQuery, defaultQueryArgs) => {
 		if (searchQuery.id) {
@@ -152,18 +154,25 @@ export default function Edit({ attributes, setAttributes }) {
 				</PanelBody>
 			</InspectorControls>
 
-			<div {...useBlockProps()}>
+			<div {...useBlockProps({ className: "search" })}>
 				<h1 className="search__title">{title}</h1>
 				<p className="search__description">{description}</p>
 
 				<div className="search__posts-wrapper">
-					<h3>{__("Selected Posts:", "search-posts")}</h3>
+					<h3 className="search__posts-title">
+						{__("Selected Posts:", "search-posts")}
+					</h3>
 					{selectedPosts.length > 0 ? (
 						<ul>
 							{selectedPosts.map((post) => (
 								<li key={post.id}>
-									<a href={post.link} target="_blank" rel="noopener noreferrer">
-										{post.title}
+									<a
+										className="dmg-read-more"
+										href={post.link}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Read More: {post.title}
 									</a>
 									<Button
 										isDestructive

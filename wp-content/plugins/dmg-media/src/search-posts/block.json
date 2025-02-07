@@ -16,7 +16,8 @@
 		"color": {
 			"background": true,
 			"gradients": false
-		}
+		},
+		"class": "search"
 	},
 	"attributes": {
 		"title": {

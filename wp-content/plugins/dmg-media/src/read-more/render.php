@@ -10,10 +10,8 @@ $selectedPosts = isset($attributes['selectedPosts']) ? $attributes['selectedPost
 ?>
 
 <section <?php echo get_block_wrapper_attributes(array('class' => 'search')); ?>>
-	<div class="search__controls">
-		<h1 class="search__title"><?php echo $title; ?></h1>
-		<p class="search__description"><?php echo $description; ?></p>
-	</div>
+	<h1 class="search__title"><?php echo $title; ?></h1>
+	<p class="search__description"><?php echo $description; ?></p>
 
 	<div class="search__posts">
 		<?php if (!empty($selectedPosts)) : ?>

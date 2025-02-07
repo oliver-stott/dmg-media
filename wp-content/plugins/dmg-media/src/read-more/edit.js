@@ -24,6 +24,7 @@ export default function Edit({ attributes, setAttributes }) {
 		setLoading(true);
 		setError(null);
 
+		// Define default arguments for search query
 		const defaultQueryArgs = {
 			per_page: 20,
 			page: currentPage,
@@ -31,6 +32,7 @@ export default function Edit({ attributes, setAttributes }) {
 			order: "desc",
 		};
 
+		// QueryArgs determines whether a search term is an ID or a String
 		const queryArgs = getQueryArgs(searchQuery, defaultQueryArgs);
 
 		try {
@@ -50,7 +52,7 @@ export default function Edit({ attributes, setAttributes }) {
 	};
 
 	// This will create a delay which will prevent the API fetching
-	// on each stage change or keystroke
+	// on each state change or keystroke
 	const debouncedFetchPosts = debounce(fetchPosts, 500);
 
 	const getQueryArgs = (searchQuery, defaultQueryArgs) => {
@@ -62,6 +64,7 @@ export default function Edit({ attributes, setAttributes }) {
 		return defaultQueryArgs;
 	};
 
+	// For performance and for our requirements, we only need the id, title and link.
 	const formatPosts = (data) => {
 		return data.map((post) => ({
 			id: post.id,
@@ -70,7 +73,8 @@ export default function Edit({ attributes, setAttributes }) {
 		}));
 	};
 
-	// Handle post selection
+	// Handling post selection helps us to prevent adding the same post twice
+	// Here the .some() array method is perfect for comparing a single id.
 	const handlePostSelect = (post) => {
 		if (selectedPosts.some(({ id }) => id === post.id)) return;
 		setAttributes({ selectedPosts: [...selectedPosts, post] });
@@ -83,6 +87,7 @@ export default function Edit({ attributes, setAttributes }) {
 		});
 	};
 
+	// Handle pagination based on the currentPage
 	const handleNextPage = () => {
 		setCurrentPage(currentPage + 1);
 	};
@@ -93,6 +98,9 @@ export default function Edit({ attributes, setAttributes }) {
 		}
 	};
 
+	// Search Input and Current page state changes therefore they are dependencies.
+	// Here we also keep track of whether the search query is a number or a string
+	// debouncing is used to add a type delay on the search input to reduce API calls.
 	useEffect(() => {
 		if (searchInput === "" || searchInput) {
 			const searchQuery = isNaN(parseInt(searchInput))

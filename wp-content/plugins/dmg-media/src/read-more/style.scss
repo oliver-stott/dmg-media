@@ -1,0 +1,19 @@
+.wp-block-create-block-read-more {
+	background-color: #21759b;
+	color: #fff;
+	padding: 2px;
+}
+
+.search {
+	padding: 3rem 0;
+	&__title,
+	&__description,
+	&__posts-title {
+		text-align: center;
+		margin-top: 0;
+	}
+	&__post-list {
+		list-style-type: none;
+		margin: auto;
+	}
+}

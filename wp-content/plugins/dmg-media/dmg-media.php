@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Plugin Name:       Dmg Media
- * Description:       Example block scaffolded with Create Block tool.
+ * Description:       A posts search block that hooks into the wordpress Rest API
  * Version:           0.1.0
  * Requires at least: 6.7
  * Requires PHP:      7.4
@@ -13,8 +14,8 @@
  * @package Dmgmedia
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+if (! defined('ABSPATH')) {
+    exit; // Exit if accessed directly.
 }
 
 /**
@@ -24,7 +25,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
-function dmgmedia_dmg_media_block_init() {
-	register_block_type( __DIR__ . '/build/search-posts' );
+// Registers the block
+function dmgmedia_dmg_media_block_init()
+{
+    register_block_type(__DIR__ . '/build/read-more');
 }
-add_action( 'init', 'dmgmedia_dmg_media_block_init' );
+add_action('init', 'dmgmedia_dmg_media_block_init');
+
+// Register WP CLI commands (only if WP-CLI is available)
+if (defined('WP_CLI') && WP_CLI) {
+    // Make sure the file with WP-CLI commands is loaded
+    require_once plugin_dir_path(__FILE__) . 'cli-commands/dmg-wpcli-commands.php';
+}
